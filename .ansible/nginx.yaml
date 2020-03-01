@@ -1,0 +1,12 @@
+---
+- hosts: nginx
+  become: true
+
+  pre_tasks:
+    - raw: apt-get install -y python-simplejson
+
+  roles:
+    - role: nginx
+      vars:
+        letsencrypt_email: admin@sskay.by
+        domain_name: grafana.sskay.by

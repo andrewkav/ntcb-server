@@ -1,0 +1,23 @@
+---
+all:
+  hosts:
+    clickhouse1:
+      ansible_host: 127.0.0.1
+      ansible_port: 2209
+      ansible_user: vagrant
+      ansible_private_key_file: .vagrant/machines/default/virtualbox/private_key
+    ntcbserver1:
+      ansible_host: 127.0.0.1
+      ansible_port: 2209
+      ansible_user: vagrant
+      ansible_private_key_file: .vagrant/machines/default/virtualbox/private_key
+  children:
+    clickhouse:
+      hosts:
+        clickhouse1:
+    ntcb:
+      hosts:
+        ntcbserver1:
+    grafana:
+      hosts:
+        clickhouse1:

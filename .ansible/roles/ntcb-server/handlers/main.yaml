@@ -1,0 +1,6 @@
+---
+- name: restart ntcb server
+  service:
+    name: "ntcb-server"
+    state: restarted
+  become: true

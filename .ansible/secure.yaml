@@ -1,0 +1,6 @@
+- hosts: all
+  roles:
+    - role: secure-ubuntu
+      become: true
+      vars:
+        ufw_allowed_ports: [21, 22, 80, 443, 11000]

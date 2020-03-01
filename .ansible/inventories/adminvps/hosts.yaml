@@ -1,0 +1,19 @@
+---
+all:
+  hosts:
+    server1:
+      ansible_host: 45.128.205.149
+      ansible_user: andrew
+  children:
+    clickhouse:
+      hosts:
+        server1:
+    ntcb:
+      hosts:
+        server1:
+    grafana:
+      hosts:
+        server1:
+    nginx:
+      hosts:
+        server1:

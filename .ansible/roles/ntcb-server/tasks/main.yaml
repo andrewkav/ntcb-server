@@ -1,0 +1,31 @@
+- name: build server
+  shell: cd ../. && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ntcb-server && realpath ntcb-server
+  delegate_to: localhost
+  register: build_result
+
+- name: create ntcb group
+  become: yes
+  group: name=ntcb
+
+- name: create ntcb user
+  become: yes
+  user: name=ntcb group=ntcb
+
+- name: install ntcb-server service
+  become: yes
+  template: src=ntcb-server.service.j2 dest=/etc/systemd/system/ntcb-server.service owner=ntcb group=ntcb
+
+- name: create /opt/services/ntcb-server direcotry
+  become: yes
+  file: path=/opt/services/ntcb-server state=directory owner=ntcb group=ntcb
+
+- name: copy ntcb-server binary
+  copy: src={{ build_result.stdout }} dest=/opt/services/ntcb-server owner=ntcb group=ntcb mode=755
+  become: yes
+  notify: "restart ntcb server"
+
+- name: start ntcb-server service
+  become: yes
+  systemd: state=started name=ntcb-server daemon_reload=yes enabled=yes
+
+

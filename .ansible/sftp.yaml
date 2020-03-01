@@ -1,0 +1,36 @@
+- hosts: ntcb
+  roles:
+    - role: galaxy/johanmeiring.sftp-server
+      become: yes
+      vars:
+        sftp_allow_passwords: yes
+        sftp_enable_logging: yes
+        sftp_users:
+          - name: sftp
+            group: sftpusers
+            home: /home/sftp/
+            password: "{{ vault_sftp_users.sftp_password | password_hash('sha512') }}"
+            shell: no
+          - name: anytime1c
+            group: sftpusers
+            home: /home/sftp/
+            password: "{{ vault_sftp_users.anytime1c_password | password_hash('sha512') }}"
+            shell: no
+        sftp_directories:
+          - /ntcb/reports
+  tasks:
+    - name: create cron script folder
+      become: yes
+      file: owner=sftp group=sftpusers dest=/home/sftp/ntcb/cron-scripts state=directory
+    - name: copy job scripts
+      become: yes
+      copy: src=cron/rides-daily-report.sh dest=/home/sftp/ntcb/cron-scripts owner=sftp group=sftpusers mode=0755
+    - name: create cron job that generates daily ride reports
+      become: yes
+      cron:
+        hour: 05 # 08:00 GMT+3
+        minute: 00
+        user: sftp
+        job: bash /home/sftp/ntcb/cron-scripts/rides-daily-report.sh >> /var/log/cron/job.log 2>&1
+
+

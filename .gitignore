@@ -1,0 +1,6 @@
+/ntcb-server
+*.log
+.idea/
+.vagrant/
+tmp.*
+pwd.local

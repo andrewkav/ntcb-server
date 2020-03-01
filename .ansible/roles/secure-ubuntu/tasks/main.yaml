@@ -1,0 +1,15 @@
+- name: install ufw
+  apt: name=ufw
+
+- name: allow outgoing traffic
+  ufw:
+    state: enabled
+    direction: out
+    rule: allow
+
+- name: allow to connect only to certain ports
+  ufw:
+    rule: allow
+    direction: in
+    port: '{{ item }}'
+  with_items: ' {{ ufw_allowed_ports }}'

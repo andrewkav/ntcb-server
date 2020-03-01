@@ -1,0 +1,22 @@
+clickhouse_networks_default:
+  - "127.0.0.1/32"
+  - "::1"
+clickhouse_version: "19.17.5.18"
+clickhouse_listen_host_default:
+  - "::"
+clickhouse_repo_keyserver: hkp://keyserver.ubuntu.com:80
+clickhouse_dbs_custom:
+  - { name: tracking, state: present }
+clickhouse_users_custom:
+  - { name: "clickhouse",
+      password_sha256_hex: "bca2ae62da7c7ccdccdb7f0f6f2ce2dd60412fc1d07c7eecd05b8dbcea18efcc",
+      networks: ["::1", "127.0.0.1/32"],
+      profile: "default",
+      quota: "default",
+      dbs: [ tracking ] }
+  - { name: "grafana",
+      password_sha256_hex: "c22dc1c5554b660cf7e79ccbf020a5fde8b5ed7e9e7ddc1d24f3fbdff9062c23",
+      networks: ["::1", "127.0.0.1/32"],
+      profile: "readonly",
+      quota: "default",
+      dbs: [ tracking ] }

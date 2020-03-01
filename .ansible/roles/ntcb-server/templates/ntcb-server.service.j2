@@ -1,0 +1,16 @@
+[Unit]
+Description=ntcb-server service
+ConditionPathExists=/opt/services/ntcb-server
+After=network.target
+
+[Service]
+Type=simple
+User=ntcb
+Group=ntcb
+WorkingDirectory=/opt/services/ntcb-server
+Restart=on-failure
+ExecStart=/opt/services/ntcb-server/ntcb-server --port 11000 --dsn "clickhouse://127.0.0.1:9000?database=tracking&username=clickhouse&password=ClickH0use"
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

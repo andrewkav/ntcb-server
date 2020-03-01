@@ -1,0 +1,21 @@
+grafana_url: https://grafana.sskay.by
+grafana_smtp:
+  host: "smtp.mailgun.org:465"
+  user:  "{{ vault_grafana_smtp_user }}"
+  password: "{{ vault_grafana_smtp_password }}"
+  from_address: admin@sskay.by
+
+grafana_datasources:
+  - name: "ClickHouse"
+    type: "vertamedia-clickhouse-datasource"
+    access: "proxy"
+    url: "http://127.0.0.1:8123"
+    typeLogoUrl: "public/plugins/vertamedia-clickhouse-datasource/img/clickhouse_logo.svg"
+    basicAuth: true
+    basicAuthUser: "{{ vault_grafana_datasources_clickhouse_basicAuthUser }}"
+    basicAuthPassword: "{{ vault_grafana_datasources_clickhouse_basicAuthPassword }}"
+    isDefault: true
+
+grafana_security:
+  admin_user: "{{ vault_grafana_security_admin_user }}"
+  admin_password: "{{ vault_grafana_security_admin_password }}"

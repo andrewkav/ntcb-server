@@ -1,0 +1,8 @@
+- hosts: grafana
+  roles:
+    - role: galaxy/cloudalchemy.grafana
+      vars:
+        grafana_version: 6.6.2
+        grafana_plugins:
+          - grafana-worldmap-panel
+          - vertamedia-clickhouse-datasource
