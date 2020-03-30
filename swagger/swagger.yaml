@@ -1,0 +1,81 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: "Smart Tracking REST Server"
+
+consumes:
+  - application/json
+
+produces:
+  - application/json
+
+securityDefinitions:
+  isValidIntegration:
+    type: apiKey
+    in: header
+    name: x-smart-tracking-api-key
+
+security:
+  - isValidIntegration: []
+
+paths:
+
+  /api/v1/integrations/devices:
+    get:
+      parameters:
+        - in: query
+          name: status
+          type: string
+          enum: ['online', 'offline']
+      operationId: integrationListDevices
+      security: []
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Device'
+
+  /api/v1/integrations/devices/{deviceID}:
+    parameters:
+      - in: path
+        name: deviceID
+        type: string
+        required: true
+    get:
+      operationId: integrationGetDevice
+      security: []
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Device'
+
+definitions:
+  Device:
+    type: object
+    properties:
+      ID:
+        type: string
+      status:
+        type: string
+        enum: ['online', 'offline']
+      odometer:
+        type: number
+        format: double
+      fuelLevelLiters:
+        type: number
+        format: double
+      lat:
+        type: number
+        format: double
+      lon:
+        type: number
+        format: double
+      timestamp:
+        type: string
+        format: 'date-time'
+      ignitionOn:
+        type: boolean

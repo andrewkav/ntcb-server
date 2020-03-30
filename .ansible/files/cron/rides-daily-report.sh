@@ -3,7 +3,7 @@ start_date=${1:-$(date -d @$(($(date +"%s") - 86400)) +"%Y-%m-%d")}
 
 echo "daily rides report: staring for ${start_date}"
 
-report_dir="/home/sftp/ntcb/reports/rides-daily/v1/${start_date}"
+report_dir="/home/proftpd/ntcb/reports/rides-daily/v1/${start_date}"
 mkdir -p "${report_dir}"
 
 device_ids_str=$(clickhouse-client --database=tracking --query="SELECT arrayStringConcat(groupArray(toString(device_id)), ' ')

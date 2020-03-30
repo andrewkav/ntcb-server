@@ -1,0 +1,74 @@
+- hosts: ntcb
+  vars:
+    ftpd_home_dir: /home/proftpd
+    ftpd_ntcb_dir: /home/proftpd/ntcb
+  pre_tasks:
+    - name: create proftpd user
+      user: name=proftpd group=nogroup
+    - name: create ntcb dir
+      become: yes
+      file: path={{ ftpd_ntcb_dir }} state=directory owner=proftpd group=nogroup
+  roles:
+    - role: nginx-letsencrypt
+      become: yes
+      vars:
+        letsencrypt_email: admin@sskay.by
+        domain_name: ftp.tracking.sskay.by
+    - role: galaxy/manala.proftpd
+      become: yes
+      vars:
+        manala_proftpd_users:
+          - name: anytime1c
+            password: "{{ vault_proftpd_users.anytime1c_password |  password_hash('sha512') }}"
+            home: "{{ ftpd_ntcb_dir }}"
+            shell: "/bin/false"
+        manala_proftpd_configs:
+          # Template based
+          - file: tls.conf
+            content: |
+              <IfModule mod_tls.c>
+              TLSEngine on
+              TLSLog /var/log/proftpd/tls.log
+              TLSProtocol TLSv1 TLSv1.1 TLSv1.2
+              TLSCipherSuite AES256+EECDH:AES256+EDH
+              TLSOptions NoCertRequest AllowClientRenegotiations NoSessionReuseRequired
+              TLSRSACertificateFile /etc/letsencrypt/live/ftp.tracking.sskay.by/cert.pem
+              TLSRSACertificateKeyFile /etc/letsencrypt/live/ftp.tracking.sskay.by/privkey.pem
+              TLSVerifyClient off
+              TLSRequired on
+              RequireValidShell off
+              </IfModule>
+          - file: users.conf
+            config:
+              - PassivePorts: 10000 10030
+              - AuthUserFile: /etc/ftpd.passwd
+              - AuthOrder: mod_auth_file.c
+          - file: virtualhost-ftp.tracking.sskay.by.conf
+            content: |
+              <Limit ALL>
+                  DenyAll
+              </Limit>
+              <Directory {{ ftpd_ntcb_dir }}>
+                  <Limit LOGIN DIRS READ>
+                      Order Allow,Deny
+                      AllowUser anytime1c
+                      Deny from all
+                  </Limit>
+              </Directory>
+              DefaultRoot {{ ftpd_ntcb_dir }}
+  tasks:
+    - name: create cron script folder
+      become: yes
+      file: owner=proftpd group=nogroup dest={{ ftpd_home_dir }}/cron-scripts state=directory
+    - name: copy job scripts
+      become: yes
+      copy: src=cron/rides-daily-report.sh dest={{ ftpd_home_dir }}/cron-scripts owner=proftpd group=nogroup mode=0755
+    - name: create cron job that generates daily ride reports
+      become: yes
+      cron:
+        hour: 05 # 08:00 GMT+3
+        minute: 00
+        user: proftpd
+        job: bash {{ ftpd_home_dir }}/cron-scripts/rides-daily-report.sh >> /var/log/cron/job.log 2>&1
+
+

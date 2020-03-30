@@ -3,4 +3,4 @@
     - role: secure-ubuntu
       become: true
       vars:
-        ufw_allowed_ports: [21, 22, 80, 443, 11000]
+        ufw_allowed_ports: ["21", "22", "80", "443", "11000", "10000:10030 proto tcp"]
