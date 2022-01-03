@@ -1,9 +1,10 @@
 package server
 
 import (
-	"github.com/spf13/viper"
 	"ntcb-server/migration"
 	"ntcb-server/ntcb"
+
+	"github.com/spf13/viper"
 )
 
 func ListenAndServe() {
@@ -21,7 +22,7 @@ func ListenAndServe() {
 		logger.Fatal().Caller().Err(err).Msg("unable to create telemetry service")
 	}
 
-	srv := ntcb.NewServer(ntcb.ServerOptions{
+	srvOptions := ntcb.ServerOptions{
 		Address: addr,
 		Debug:   viper.GetBool("debug"),
 		OnConnectionClosed: func(c *ntcb.Conn, err error) {
@@ -53,7 +54,8 @@ func ListenAndServe() {
 				Str("IP", c.RemoteAddr()).
 				Msg("new connection established")
 		},
-	})
+	}
+	srv := ntcb.NewServer(srvOptions)
 
 	logger.Info().Msgf("starting NTCB server at %s ", addr)
 

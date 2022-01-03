@@ -19,7 +19,7 @@
       vars:
         manala_proftpd_users:
           - name: anytime1c
-            password: "{{ vault_proftpd_users.anytime1c_password |  password_hash('sha512') }}"
+            password: "{{ vault_proftpd_users.anytime1c_password |  password_hash('sha256') }}"
             home: "{{ ftpd_ntcb_dir }}"
             shell: "/bin/false"
         manala_proftpd_configs:

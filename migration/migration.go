@@ -3,22 +3,22 @@
 package migration
 
 import (
+	"embed"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse"
-	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"log"
 )
 
-func Migrate(chDSN string) error {
-	s := bindata.Resource(AssetNames(),
-		func(name string) ([]byte, error) {
-			return Asset(name)
-		})
-	d, err := bindata.WithInstance(s)
-	if err != nil {
-		return err
-	}
+//go:embed clickhouse/*.sql
+var migrationsDir embed.FS
 
-	m, err := migrate.NewWithSourceInstance("go-bindata", d, chDSN)
+func Migrate(chDSN string) error {
+	d, err := iofs.New(migrationsDir, "clickhouse")
+	if err != nil {
+		log.Fatal(err)
+	}
+	m, err := migrate.NewWithSourceInstance("iofs", d, chDSN)
 	if err != nil {
 		return err
 	}

@@ -175,7 +175,7 @@ func (c *Conn) handleProtocolNegotiation(h Header, d []byte) (err error) {
 	c.flexMessageSize = FlexTelemetryMessageSize(c.flexBitField)
 
 	if c.protoVersion != c.structVersion {
-		c.protoVersion, c.structVersion = flexProtocolVersion20, flexProtocolVersion20
+		c.protoVersion, c.structVersion = flexProtocolVersion10, flexProtocolVersion10
 	}
 
 	return c.writeNTCBReply(h, protoNegotiationMsg{

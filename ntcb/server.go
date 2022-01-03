@@ -7,7 +7,6 @@ import (
 	"sort"
 	"sync"
 	"syscall"
-	"time"
 )
 
 type ServerOptions struct {
@@ -16,6 +15,7 @@ type ServerOptions struct {
 	OnTelemetryMessage func(c *Conn, tm TelemetryMessage)
 	OnNewConnection    func(c *Conn)
 	OnConnectionClosed func(c *Conn, err error)
+	OnConnectionError  func(c *Conn, err error)
 }
 
 type Server struct {
@@ -100,7 +100,9 @@ func (s *Server) ListenAndServe() error {
 		for {
 			conn, err := l.Accept()
 			if err != nil {
-				time.Sleep(time.Second)
+				if s.opts.OnConnectionError != nil {
+					s.opts.OnConnectionError(nil, err)
+				}
 				continue
 			}
 

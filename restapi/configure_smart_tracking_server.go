@@ -6,11 +6,11 @@ import (
 	"crypto/tls"
 	"net/http"
 
+	"ntcb-server/restapi/operations"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-
-	"ntcb-server/restapi/operations"
 )
 
 //go:generate swagger generate server --target ../../ntcb-server --name SmartTrackingServer --spec ../swagger/swagger.yaml --model-package restmodels

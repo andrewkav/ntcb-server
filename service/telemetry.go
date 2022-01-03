@@ -2,11 +2,13 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/jinzhu/gorm"
-	"github.com/rs/zerolog"
 	"ntcb-server/dao"
 	"ntcb-server/ntcb"
 	"time"
+
+	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 )
 
 type TelemetryService struct {
@@ -18,8 +20,11 @@ func NewTelemetryService(db *gorm.DB, logger zerolog.Logger) *TelemetryService {
 	return &TelemetryService{db: db, logger: logger}
 }
 
-func newTelemetryMessage(deviceID string, tm *ntcb.TelemetryMessage) *dao.TelemetryMessage {
-	tmJson, _ := json.Marshal(tm)
+func newTelemetryMessage(deviceID string, tm *ntcb.TelemetryMessage) (*dao.TelemetryMessage, error) {
+	tmJson, err := json.Marshal(tm)
+	if err != nil {
+		return nil, err
+	}
 	return &dao.TelemetryMessage{
 		DeviceID:          deviceID,
 		SeqNo:             tm.SeqNo,
@@ -44,14 +49,16 @@ func newTelemetryMessage(deviceID string, tm *ntcb.TelemetryMessage) *dao.Teleme
 		BrakePosition:     tm.CANBrakePosition,
 		DistUntilService:  float32(tm.CANDistanceUntilService) * 5,
 		Details:           string(tmJson),
-	}
+	}, nil
 }
 
 func (t *TelemetryService) Save(deviceID string, message *ntcb.TelemetryMessage) error {
-	daoMsg := newTelemetryMessage(deviceID, message)
+	daoMsg, err := newTelemetryMessage(deviceID, message)
+	if err != nil {
+		return errors.Wrap(err, "unable to create telemetry message")
+	}
 	if err := t.db.Save(daoMsg).Error; err != nil {
-		t.logger.Error().Caller().Err(err).Msg("unable to save telemetry dao message")
-		return err
+		return errors.Wrap(err, "unable to save message to DB")
 	}
 
 	return nil
